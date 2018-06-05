@@ -1,0 +1,9 @@
+# ThatActor’s crontab configuration
+
+SHELL=/bin/bash 
+PATH=/sbin:/bin:/usr/sbin:/usr/bin 
+MAILTO=root 
+HOME=/opt/pywc/
+
+30 1-23/6 * * * /opt/pywc/hello.sh > /opt/pywc/hello.sh.log 2>&1
+

@@ -2,14 +2,12 @@
 import requests
 from bs4 import BeautifulSoup as bs
 import sys
-# import pymongo
+import os
 import datetime
 
 from pymongo import MongoClient
 
-# python파일의 위치
-# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
+new = []
 
 def scrape_html(url):
     req = requests.get(url)
@@ -39,13 +37,32 @@ def logging(txt):
     f.write(curr_time[0] + ' ' + curr_time[1] + ' ' + txt + '\n')
     f.close()
 
+def latest_Data_ex():
+    res = []
+    with open('latest.txt', 'r+') as f_read:
+        for _ in range(10):
+            before = f_read.readline()
+            before = before.rstrip('\n')
+            res.append(before)
+        f_read.close()
+        return res
+
+def latest_Data_in(newlat):
+    with open('latest.txt', 'w+') as f_write:
+        for val in newlat :
+            f_write.write(str(val)+'\n')
+        f_write.close()
+
 # for v in result:
 #     print(v)
 
 # sys.exit()
-init_count = 3
-for i in range(init_count,0,-1):
-    soup = scrape_html('https://www.filmmakers.co.kr/index.php?mid=actorsAudition&page='+str(i))
+# init_count = 3
+# for i in range(init_count,0,-1):
+def parse_flim_web(page,lat):
+    global new
+
+    soup = scrape_html('https://www.filmmakers.co.kr/index.php?mid=actorsAudition&page='+str(page))
     my_titles = soup.select(
         '#board > tbody > tr > td.title > a'
         )
@@ -88,8 +105,11 @@ for i in range(init_count,0,-1):
 
         ch_srl = oneTitle.get('href').split('document_srl=')[1]
 
-        if ch_srl == '5950094' :
-            break
+
+
+        for val in lat:
+            if str(ch_srl) == val :
+                return 0
 
         soup2 = scrape_html(oneTitle.get('href'))
         # soup2 = scrape_html('https://www.filmmakers.co.kr/actorsAudition/4340780')
@@ -176,6 +196,11 @@ for i in range(init_count,0,-1):
         # print(dicTemp)
         # sys.exit()
         mongoConnection(dicTemp)
-        logging('index = '+str(i)+' inner srl = '+dicTemp['srl'])
-    print('index = ',i)
-logging('THE END')
+
+        if len(new) < 10 :
+            new.append(dicTemp['srl'])
+        # print(ch_srl,new)
+
+        # logging('index = '+str(page)+' inner srl = '+dicTemp['srl'])
+    print('index = ',page)
+    return 1
